@@ -14,17 +14,27 @@ var renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-var loader = new THREE.STLLoader();
-var material = new THREE.MeshPhongMaterial({color: 0xAAAAAA, specular: 0x111111, shininess: 200});
+const manager = new THREE.LoadingManager();
+const loader = new URDFLoader(manager);
+const material = new THREE.MeshPhongMaterial({color: 0xAAAAAA, specular: 0x111111, shininess: 200});
+var geometryLoader = new THREE.STLLoader();
+var myrobot = null;
 
-loader.load('robo.stl', function(geometry) {
-    var mesh = new THREE.Mesh(geometry, material);
+loader.load('urdf/iiwa7/urdf/iiwa7.urdf', {}, robot => {
+    myrobot = robot;
+    console.log('complete', robot);
 
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
+    scene.add(robot);
+}, { loadMeshCb: (path, ext, done) => {
+    geometryLoader.load(path, geometry => {
+        console.log(path);
+        var mesh = new THREE.Mesh(geometry, material);
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
 
-    scene.add(mesh);
-});
+        done(mesh);
+    });
+}});
 
 function animate() {
     requestAnimationFrame(animate);
