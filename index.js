@@ -2,9 +2,9 @@ var scene = new THREE.Scene();
 scene.background = new THREE.Color(0x72645b);
 
 var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.set(0, 0, 10);
 
 controls = new THREE.OrbitControls(camera);
-controls.target.set(0, -0.2, -0.2);
 controls.update();
 
 var light = new THREE.HemisphereLight(0xffffbb, 0x080820, 1);
