@@ -41,3 +41,31 @@ function animate() {
     renderer.render(scene, camera);
 }
 animate();
+
+// MQTT
+var mqttUrl = 'ws://10.30.21.40:8000/mqtt';
+var clientId = 'webui_'+Math.random().toString(36).substring(2,15);
+console.log('MQTT conenct to', mqttUrl, clientId);
+var client = new Paho.MQTT.Client(mqttUrl, clientId);
+client.onMessageArrived = function(recv) {
+    let topic = recv.destinationName;
+    let message = JSON.parse(recv.payloadString);
+
+    console.log(topic, message);
+
+    myrobot.joints.iiwa_joint_1.setAngle(message[0]);
+    myrobot.joints.iiwa_joint_2.setAngle(message[1]);
+    myrobot.joints.iiwa_joint_3.setAngle(message[2]);
+    myrobot.joints.iiwa_joint_4.setAngle(message[3]);
+    myrobot.joints.iiwa_joint_5.setAngle(message[4]);
+    myrobot.joints.iiwa_joint_6.setAngle(message[5]);
+    myrobot.joints.iiwa_joint_7.setAngle(message[6]);
+};
+client.onConnectionLost = function() {
+    console.log('mqtt disconencted');
+};
+client.connect({onSuccess:function() {
+    console.log('mqtt conencted');
+
+    client.subscribe('kuka/status/1/currentJointPosition');
+}});
